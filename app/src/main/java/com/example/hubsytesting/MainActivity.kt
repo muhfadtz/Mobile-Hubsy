@@ -3,38 +3,51 @@ package com.example.hubsytesting
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.hubsytesting.databinding.ActivityMainBinding
+import androidx.recyclerview.widget.RecyclerView
 import com.example.coworkingspace.CoworkingAdapter
 import com.example.coworkingspace.CoworkingSpace
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMainBinding
-    private lateinit var adapter: CoworkingAdapter
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var coworkingAdapter: CoworkingAdapter
+    private val coworkingList = mutableListOf<CoworkingSpace>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
 
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        // Setup RecyclerView
+        recyclerView = findViewById(R.id.recyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        coworkingAdapter = CoworkingAdapter(coworkingList)
+        recyclerView.adapter = coworkingAdapter
 
-        val coworkingList = listOf(
-            CoworkingSpace("Cafe Moon & Co-Working Space", "⭐ 4.5 (370)", "📍 25, Ismalia Street", "Rp200K/day", R.drawable.ic_launcher_foreground),
-            CoworkingSpace("Cozy Hub", "⭐ 4.7 (250)", "📍 18, Central Street", "Rp150K/day", R.drawable.ic_launcher_foreground),
-            CoworkingSpace("Creative Lounge", "⭐ 4.8 (500)", "📍 10, Downtown", "Rp180K/day", R.drawable.ic_launcher_foreground)
-        )
-
-        adapter = CoworkingAdapter(coworkingList)
-        binding.recyclerView.layoutManager = LinearLayoutManager(this)
-        binding.recyclerView.adapter = adapter
-        binding.recyclerView.setHasFixedSize(true)
-
-        // Cek apakah data masuk
-        if (coworkingList.isEmpty()) {
-            println("RecyclerView: Data kosong!")
-        } else {
-            println("RecyclerView: Data berjumlah ${coworkingList.size}")
-        }
+        // Load Data
+        loadCoworkingSpaces()
     }
 
+    private fun loadCoworkingSpaces() {
+        coworkingList.add(
+            CoworkingSpace(
+                name = "Cafe moon & Co-Working Space",
+                rating = 4.5,
+                reviews = 370,
+                location = "26, Ismailia street",
+                price = "200k",
+                image = null // Tidak pakai drawable
+            )
+        )
+        coworkingList.add(
+            CoworkingSpace(
+                name = "Urban Hive Space",
+                rating = 4.7,
+                reviews = 420,
+                location = "Jl. Sudirman No. 10",
+                price = "250k",
+                image = null
+            )
+        )
+        coworkingAdapter.notifyDataSetChanged()
+    }
 }
