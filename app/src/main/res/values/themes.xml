@@ -1,9 +1,26 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.HubsyTesting" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+    <!-- Base Theme -->
+    <style name="Base.Theme.HubsyTesting" parent="Theme.Material3.Light.NoActionBar">
+        <!-- Primary Colors -->
+        <item name="colorPrimary">@color/black</item>
+        <item name="colorPrimaryVariant">@color/black</item>
+        <item name="colorOnPrimary">@color/white</item>
+
+        <!-- Secondary Colors -->
+        <item name="colorSecondary">@color/black</item>
+        <item name="colorSecondaryVariant">@color/black</item>
+        <item name="colorOnSecondary">@color/white</item>
+
+        <!-- Background & Surface -->
+        <item name="android:colorBackground">@color/white</item>
+        <item name="colorSurface">@color/white</item>
+        <item name="colorOnSurface">@color/black</item>
+        <item name="android:fontFamily">@font/custom_font</item>
+
+        <!-- Disable Dynamic Colors -->
+        <item name="android:forceDarkAllowed">false</item>
     </style>
 
+    <!-- Main Theme -->
     <style name="Theme.HubsyTesting" parent="Base.Theme.HubsyTesting" />
 </resources>

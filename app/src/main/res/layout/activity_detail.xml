@@ -23,8 +23,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
-
-    <!-- Gambar (DIPISAHKAN dari ScrollView) -->
+    <!-- Gambar -->
     <ImageView
         android:id="@+id/imgCoworking"
         android:layout_width="match_parent"
@@ -54,18 +53,18 @@
                 android:id="@+id/tvCoworkingName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Cafe Moon  Co-Working Space"
+                android:text="Cafe Moon Co-Working Space"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:textColor="@android:color/black"
-                android:layout_marginTop="12dp"/>
+                android:layout_marginTop="16dp"/>
 
             <!-- Rating & Lokasi -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="4dp">
+                android:layout_marginTop="8dp">
 
                 <TextView
                     android:id="@+id/tvRating"
@@ -85,6 +84,24 @@
                     android:layout_marginStart="8dp"/>
             </LinearLayout>
 
+            <!-- Overview (Deskripsi Singkat) -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Overview"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:layout_marginTop="16dp"/>
+
+            <TextView
+                android:id="@+id/tvOverview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut at mauris arcu. Sed ut purus lorem."
+                android:textSize="14sp"
+                android:textColor="@android:color/darker_gray"
+                android:layout_marginTop="6dp"/>
+
             <!-- Amenities -->
             <TextView
                 android:layout_width="wrap_content"
@@ -92,13 +109,13 @@
                 android:text="Amenities"
                 android:textStyle="bold"
                 android:textSize="16sp"
-                android:layout_marginTop="12dp"/>
+                android:layout_marginTop="16dp"/>
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="4dp">
+                android:layout_marginTop="6dp">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -135,8 +152,8 @@
                 android:text="Rp 1.5jt/Day"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="@android:color/holo_blue_dark"
-                android:layout_marginTop="12dp"/>
+                android:textColor="@android:color/black"
+                android:layout_marginTop="16dp"/>
         </LinearLayout>
     </ScrollView>
 
@@ -146,7 +163,7 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:text="💬 Book For Rp1.5jt/Day"
-        android:background="@color/black"
+        android:background="@drawable/rounded_button"
         android:textSize="16sp"
         android:textColor="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
