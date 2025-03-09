@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.example.hubsytesting"
-    compileSdk = 35
+    compileSdk = 35 // API 35 belum stabil, gunakan API 34
 
     defaultConfig {
         applicationId = "com.example.hubsytesting"
@@ -26,6 +26,7 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -34,24 +35,29 @@ android {
         jvmTarget = "11"
     }
 
-    // ✅ Aktifkan View Binding di sini!
-    viewBinding {
-        enable = true
+    // ✅ Aktifkan View Binding dengan benar
+    buildFeatures {
+        viewBinding = true
     }
 }
 
 dependencies {
-    implementation ("androidx.compose.material:material-icons-extended:1.5.0")
-    implementation ("androidx.appcompat:appcompat:1.6.1")
-    implementation ("com.google.android.material:material:1.10.0")
-    implementation ("androidx.recyclerview:recyclerview:1.3.2")
-    implementation ("com.github.bumptech.glide:glide:4.15.1")
-    annotationProcessor ("com.github.bumptech.glide:compiler:4.15.1")
+    // ✅ Gunakan hanya satu cara: katalog versi (libs.versions.toml)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+
+    // ✅ Tambahkan ke katalog versi agar konsisten
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.auth.ktx)
+
+    // ✅ Tambahkan di libs.versions.toml
+    implementation(libs.glide)
+    annotationProcessor(libs.glide.compiler)
+
+    // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
