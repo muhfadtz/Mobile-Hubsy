@@ -1,5 +1,6 @@
 package com.example.hubsytesting
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,7 +21,11 @@ class MainActivity : AppCompatActivity() {
         // Setup RecyclerView
         recyclerView = findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        coworkingAdapter = CoworkingAdapter(coworkingList)
+
+        // Adapter dengan click listener
+        coworkingAdapter = CoworkingAdapter(coworkingList) { coworkingId ->
+            openDetailActivity(coworkingId)
+        }
         recyclerView.adapter = coworkingAdapter
 
         // Load Data
@@ -30,16 +35,18 @@ class MainActivity : AppCompatActivity() {
     private fun loadCoworkingSpaces() {
         coworkingList.add(
             CoworkingSpace(
-                name = "Cafe moon & Co-Working Space",
+                id = 1, // Tambahkan ID
+                name = "Cafe Moon & Co-Working Space",
                 rating = 4.5,
                 reviews = 370,
-                location = "26, Ismailia street",
+                location = "26, Ismailia Street",
                 price = "200k",
                 image = null // Tidak pakai drawable
             )
         )
         coworkingList.add(
             CoworkingSpace(
+                id = 2, // Tambahkan ID
                 name = "Urban Hive Space",
                 rating = 4.7,
                 reviews = 420,
@@ -48,6 +55,14 @@ class MainActivity : AppCompatActivity() {
                 image = null
             )
         )
+
         coworkingAdapter.notifyDataSetChanged()
+    }
+
+    // Fungsi untuk membuka halaman DetailActivity
+    private fun openDetailActivity(coworkingId: Int) {
+        val intent = Intent(this, DetailActivity::class.java)
+        intent.putExtra("COWORKING_ID", coworkingId) // Kirim ID tempat kerja
+        startActivity(intent)
     }
 }

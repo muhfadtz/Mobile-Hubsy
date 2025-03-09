@@ -7,15 +7,15 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.hubsytesting.R
 
-
-class CoworkingAdapter(private val coworkingList: List<CoworkingSpace>) :
-    RecyclerView.Adapter<CoworkingAdapter.CoworkingViewHolder>() {
+class CoworkingAdapter(
+    private val coworkingList: List<CoworkingSpace>,
+    private val onItemClick: (Int) -> Unit // Callback saat item diklik
+) : RecyclerView.Adapter<CoworkingAdapter.CoworkingViewHolder>() {
 
     class CoworkingViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val tvName: TextView = view.findViewById(R.id.tvCoworkingName)
-        val tvRating: TextView = view.findViewById(R.id.tvRating)
-        val tvLocation: TextView = view.findViewById(R.id.tvLocation)
-        val tvPrice: TextView = view.findViewById(R.id.tvPrice)
+        val name: TextView = view.findViewById(R.id.tvCoworkingName)
+        val rating: TextView = view.findViewById(R.id.tvRating)
+        val location: TextView = view.findViewById(R.id.tvLocation)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CoworkingViewHolder {
@@ -26,10 +26,15 @@ class CoworkingAdapter(private val coworkingList: List<CoworkingSpace>) :
 
     override fun onBindViewHolder(holder: CoworkingViewHolder, position: Int) {
         val coworking = coworkingList[position]
-        holder.tvName.text = coworking.name
-        holder.tvRating.text = "⭐ ${coworking.rating} (${coworking.reviews})"
-        holder.tvLocation.text = "📍 ${coworking.location}"
-        holder.tvPrice.text = "Rp ${coworking.price}/day"
+
+        holder.name.text = coworking.name
+        holder.rating.text = "⭐ ${coworking.rating} (${coworking.reviews})"
+        holder.location.text = "📍 ${coworking.location}"
+
+        // Handle klik item
+        holder.itemView.setOnClickListener {
+            onItemClick(coworking.id)
+        }
     }
 
     override fun getItemCount(): Int = coworkingList.size
