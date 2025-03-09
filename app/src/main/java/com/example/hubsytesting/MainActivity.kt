@@ -2,6 +2,7 @@ package com.example.hubsytesting
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -30,6 +31,13 @@ class MainActivity : AppCompatActivity() {
 
         // Load Data
         loadCoworkingSpaces()
+
+        // Setup klik pada userName untuk pindah ke LoginActivity
+        val userName = findViewById<TextView>(R.id.userName)
+        userName.setOnClickListener {
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun loadCoworkingSpaces() {
