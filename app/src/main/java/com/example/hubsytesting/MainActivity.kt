@@ -9,7 +9,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.coworkingspace.CoworkingAdapter
 import com.example.coworkingspace.CoworkingSpace
+import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class MainActivity : AppCompatActivity() {
 
@@ -17,41 +19,34 @@ class MainActivity : AppCompatActivity() {
     private lateinit var coworkingAdapter: CoworkingAdapter
     private val coworkingList = mutableListOf<CoworkingSpace>()
     private lateinit var firebaseAuth: FirebaseAuth
+    private lateinit var firestore: FirebaseFirestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        FirebaseApp.initializeApp(this)
 
-        // Inisialisasi FirebaseAuth
         firebaseAuth = FirebaseAuth.getInstance()
+        firestore = FirebaseFirestore.getInstance()
 
-        // Mendapatkan email pengguna yang terautentikasi
         val userEmail = firebaseAuth.currentUser?.email
-
-        // Ambil 5 karakter pertama dari email atau tampilkan "Guest" jika tidak ada email
         val userName = findViewById<TextView>(R.id.userName)
         userName.text = userEmail?.take(5) ?: "Guest"
 
-        // Setup RecyclerView
         recyclerView = findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        // Adapter dengan click listener
         coworkingAdapter = CoworkingAdapter(coworkingList) { coworkingId ->
             openDetailActivity(coworkingId)
         }
         recyclerView.adapter = coworkingAdapter
 
-        // Load Data
         loadCoworkingSpaces()
 
-        // Cek apakah pengguna sudah login
         userName.setOnClickListener {
             if (firebaseAuth.currentUser != null) {
-                // Jika pengguna sudah login, tampilkan pesan dan jangan lakukan apapun
                 Toast.makeText(this, "Anda sudah login sebagai ${userName.text}", Toast.LENGTH_SHORT).show()
             } else {
-                // Jika belum login, arahkan ke LoginActivity
                 val intent = Intent(this, LoginActivity::class.java)
                 startActivity(intent)
             }
@@ -59,34 +54,31 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun loadCoworkingSpaces() {
-        coworkingList.add(
-            CoworkingSpace(
-                id = 1,
-                name = "Cafe Moon & Co-Working Space",
-                rating = 4.5,
-                reviews = 370,
-                location = "26, Ismailia Street",
-                price = "200k",
-                image = null
-            )
-        )
-        coworkingList.add(
-            CoworkingSpace(
-                id = 2,
-                name = "Urban Hive Space",
-                rating = 4.7,
-                reviews = 420,
-                location = "Jl. Sudirman No. 10",
-                price = "250k",
-                image = null
-            )
-        )
-
-        coworkingAdapter.notifyDataSetChanged()
+        firestore.collection("coworking_spaces")
+            .get()
+            .addOnSuccessListener { result ->
+                coworkingList.clear()
+                for (document in result) {
+                    val coworkingSpace = CoworkingSpace(
+                        id = document.id,
+                        name = document.getString("name") ?: "No Name",
+                        rating = document.getDouble("rating") ?: 0.0,  // Ambil sebagai Double
+                        reviews = document.getLong("reviews")?.toInt() ?: 0, // Ambil sebagai Int
+                        location = document.getString("location") ?: "Unknown",
+                        price = document.getLong("price")?.toInt() ?: 0, // Ambil sebagai Int
+                        image = document.getString("image") ?: ""
+                    )
+                    coworkingList.add(coworkingSpace)
+                }
+                coworkingAdapter.notifyDataSetChanged()
+            }
+            .addOnFailureListener { exception ->
+                Toast.makeText(this, "Gagal memuat data: ${exception.message}", Toast.LENGTH_SHORT).show()
+            }
     }
 
-    // Fungsi untuk membuka halaman DetailActivity
-    private fun openDetailActivity(coworkingId: Int) {
+
+    private fun openDetailActivity(coworkingId: String) {
         val intent = Intent(this, DetailActivity::class.java)
         intent.putExtra("COWORKING_ID", coworkingId)
         startActivity(intent)
