@@ -2,7 +2,6 @@ package com.example.hubsytesting
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -46,7 +45,6 @@ class MainActivity : AppCompatActivity() {
         loadCoworkingSpaces()
 
         userName.setOnClickListener {
-            Log.d("UserClick", "Nama pengguna ${userName.text}")
             if (firebaseAuth.currentUser != null) {
                 Toast.makeText(this, "Anda sudah login sebagai ${userName.text}", Toast.LENGTH_SHORT).show()
             } else {
@@ -62,19 +60,11 @@ class MainActivity : AppCompatActivity() {
             .addOnSuccessListener { result ->
                 coworkingList.clear()
                 for (document in result) {
-                    // Cek apakah ada spasi tersembunyi pada keys
-                    for (key in document.data.keys) {
-                        Log.d("FirestoreKeys", "Key ditemukan: '$key'")
-                    }
-
-                    // Perbaikan cara membaca field "name"
                     val name = document.get("name")?.toString()?.trim() ?: "No Name"
-
-                    Log.d("FirestoreData", "ID: ${document.id}, Name: $name")
 
                     val coworkingSpace = CoworkingSpace(
                         id = document.id,
-                        name = name, // Gunakan hasil parsing name
+                        name = name,
                         rating = document.getDouble("rating") ?: 0.0,
                         reviews = document.getLong("reviews")?.toInt() ?: 0,
                         location = document.getString("location") ?: "Unknown",
@@ -83,13 +73,10 @@ class MainActivity : AppCompatActivity() {
                     )
                     coworkingList.add(coworkingSpace)
                 }
-
-                Log.d("FirestoreData", "Data yang diterima: $coworkingList")
                 coworkingAdapter.notifyDataSetChanged()
             }
-            .addOnFailureListener { exception ->
-                Log.e("FirestoreError", "Gagal memuat data: ${exception.message}", exception)
-                Toast.makeText(this, "Gagal memuat data: ${exception.message}", Toast.LENGTH_SHORT).show()
+            .addOnFailureListener {
+                Toast.makeText(this, "Gagal memuat data", Toast.LENGTH_SHORT).show()
             }
     }
 
