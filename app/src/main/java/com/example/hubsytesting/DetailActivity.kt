@@ -1,5 +1,6 @@
 package com.example.hubsytesting
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageView
@@ -25,13 +26,10 @@ class DetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_detail)
 
-        // Inisialisasi Firestore
         firestore = FirebaseFirestore.getInstance()
 
-        // Ambil ID dari Intent
         val coworkingId = intent.getStringExtra("COWORKING_ID")
 
-        // Inisialisasi UI
         tvCoworkingName = findViewById(R.id.tvCoworkingName)
         tvRating = findViewById(R.id.tvRating)
         tvLocation = findViewById(R.id.tvLocation)
@@ -41,7 +39,6 @@ class DetailActivity : AppCompatActivity() {
         btnBook = findViewById(R.id.btnBook)
         btnBack = findViewById(R.id.btnBack)
 
-        // Load data dari Firestore berdasarkan ID
         if (coworkingId != null) {
             loadCoworkingDetails(coworkingId)
         } else {
@@ -49,7 +46,6 @@ class DetailActivity : AppCompatActivity() {
             finish()
         }
 
-        // Tombol kembali ke MainActivity
         btnBack.setOnClickListener {
             finish()
         }
@@ -66,24 +62,29 @@ class DetailActivity : AppCompatActivity() {
                     val location = document.getString("location") ?: "Unknown"
                     val price = document.getLong("price") ?: 0
                     val imageUrl = document.getString("image") ?: ""
-                    val overview = "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+                    val overview = document.getString("overview") ?: "No Description"
 
-                    // Set ke UI
                     tvCoworkingName.text = name
                     tvRating.text = "⭐ $rating ($reviews Reviews)"
                     tvLocation.text = "📍 $location"
                     tvPrice.text = "Rp $price / Day"
                     tvOverview.text = overview
 
-                    // Load gambar dengan Glide (jika ada)
                     if (imageUrl.isNotEmpty()) {
                         Glide.with(this).load(imageUrl).into(imgCoworking)
                     }
 
-                    // Tombol Booking (simulasi)
                     btnBook.text = "💬 Book For Rp $price / Day"
                     btnBook.setOnClickListener {
-                        Toast.makeText(this, "Booking untuk $name berhasil!", Toast.LENGTH_SHORT).show()
+                        val intent = Intent(this, CheckoutActivity::class.java)
+                        intent.putExtra("COWORKING_ID", coworkingId)
+                        intent.putExtra("NAME", name)
+                        intent.putExtra("RATING", rating)
+                        intent.putExtra("REVIEWS", reviews)
+                        intent.putExtra("LOCATION", location)
+                        intent.putExtra("PRICE", price)
+                        intent.putExtra("IMAGE", imageUrl)
+                        startActivity(intent)
                     }
                 } else {
                     Toast.makeText(this, "Data tidak ditemukan", Toast.LENGTH_SHORT).show()
