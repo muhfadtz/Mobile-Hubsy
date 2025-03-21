@@ -16,9 +16,11 @@
         android:theme="@style/Theme.HubsyTesting"
         tools:targetApi="31">
         <activity
-            android:name=".PayConfirmActivity"
+            android:name=".HistoryActivity"
             android:exported="false" />
-        <!-- Aktivitas dalam aplikasi -->
+        <activity
+            android:name=".PayConfirmActivity"
+            android:exported="false" /> <!-- Aktivitas dalam aplikasi -->
         <activity
             android:name=".CheckoutActivity"
             android:exported="false" />
