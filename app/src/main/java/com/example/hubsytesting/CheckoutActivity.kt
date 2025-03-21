@@ -1,17 +1,22 @@
 package com.example.hubsytesting
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.Timestamp
+import java.text.SimpleDateFormat
 import java.util.*
 
 class CheckoutActivity : AppCompatActivity() {
 
     private lateinit var firestore: FirebaseFirestore
+    private lateinit var auth: FirebaseAuth
     private lateinit var backButton: TextView
     private lateinit var checkoutButton: MaterialButton
     private lateinit var dayInput: TextInputEditText
@@ -34,6 +39,7 @@ class CheckoutActivity : AppCompatActivity() {
         setContentView(R.layout.activity_checkout)
 
         firestore = FirebaseFirestore.getInstance()
+        auth = FirebaseAuth.getInstance()
 
         // Inisialisasi views
         backButton = findViewById(R.id.back_button)
@@ -58,9 +64,6 @@ class CheckoutActivity : AppCompatActivity() {
         cafeLocationRatingTextView.text = "📍 $coworkingLocation, ${coworkingRating} ⭐ ($coworkingReviews)"
         checkoutButton.text = "Checkout - Rp $coworkingPrice"
 
-        // Set tanggal hari ini sebagai nilai default
-        setDefaultDate()
-
         // Setup listeners
         backButton.setOnClickListener {
             finish()
@@ -71,13 +74,6 @@ class CheckoutActivity : AppCompatActivity() {
                 processCheckout()
             }
         }
-    }
-
-    private fun setDefaultDate() {
-        val calendar = Calendar.getInstance()
-        dayInput.setText(calendar.get(Calendar.DAY_OF_MONTH).toString())
-        monthInput.setText((calendar.get(Calendar.MONTH) + 1).toString())
-        yearInput.setText(calendar.get(Calendar.YEAR).toString())
     }
 
     private fun validateInputs(): Boolean {
@@ -108,29 +104,43 @@ class CheckoutActivity : AppCompatActivity() {
     }
 
     private fun processCheckout() {
-        // Implementasi proses checkout
+        val currentUser = auth.currentUser
+        if (currentUser == null) {
+            Toast.makeText(this, "Anda belum login", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val userId = currentUser.uid
         val day = dayInput.text.toString().trim()
         val month = monthInput.text.toString().trim()
         val year = yearInput.text.toString().trim()
-        val bookingDate = "$day/$month/$year"
+
+        val dateString = "$day/$month/$year"
+        val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        val date: Date? = dateFormat.parse(dateString)
+        val bookingDate = date?.let { Timestamp(it) } ?: Timestamp.now()
 
         val bookingData = hashMapOf(
             "coworkingId" to coworkingId,
-            "userId" to "current_user_id", // Ganti dengan user ID yang sebenarnya
+            "userId" to userId,
             "coworkingName" to coworkingName,
             "bookingDate" to bookingDate,
             "price" to coworkingPrice,
             "status" to "pending",
-            "timestamp" to com.google.firebase.Timestamp.now()
+            "timestamp" to Timestamp.now()
         )
 
         firestore.collection("bookings").add(bookingData)
             .addOnSuccessListener {
                 Toast.makeText(this, "Booking berhasil!", Toast.LENGTH_SHORT).show()
+                val intent = Intent(this, MainActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+                startActivity(intent)
                 finish()
             }
             .addOnFailureListener { e ->
                 Toast.makeText(this, "Gagal booking: ${e.message}", Toast.LENGTH_SHORT).show()
             }
+
     }
 }
