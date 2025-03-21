@@ -47,6 +47,8 @@ dependencies {
     implementation("com.google.android.material:material:1.10.0")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("com.github.bumptech.glide:glide:4.15.1")
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+    implementation("com.google.zxing:core:3.5.1")
     annotationProcessor("com.github.bumptech.glide:compiler:4.15.1")
 
     // ✅ Firebase Dependencies
