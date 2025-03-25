@@ -6,11 +6,18 @@ import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.android.volley.Request
+import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.Volley
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.Timestamp
+import com.midtrans.sdk.corekit.models.snap.TransactionResult
+import com.midtrans.sdk.uikit.api.model.TransactionResult
+import com.midtrans.sdk.uikit.external.UiKitApi
+import org.json.JSONObject
 
 class CheckoutActivity : AppCompatActivity() {
     private val TAG = "CheckoutActivity"
@@ -25,7 +32,6 @@ class CheckoutActivity : AppCompatActivity() {
     private lateinit var cafeNameTextView: TextView
     private lateinit var cafeLocationRatingTextView: TextView
 
-    // Data dari intent
     private var coworkingId: String? = null
     private var coworkingName: String? = null
     private var coworkingRating: Double = 0.0
@@ -121,73 +127,68 @@ class CheckoutActivity : AppCompatActivity() {
             return false
         }
 
-        try {
-            val dayInt = day.toInt()
-            val monthInt = month.toInt()
-            val yearInt = year.toInt()
-
-            if (dayInt < 1 || dayInt > 31 || monthInt < 1 || monthInt > 12 || yearInt < 2023) {
-                Log.e(TAG, "Invalid date values: day=$dayInt, month=$monthInt, year=$yearInt")
-                Toast.makeText(this, "Tanggal tidak valid", Toast.LENGTH_SHORT).show()
-                return false
-            }
-        } catch (e: NumberFormatException) {
-            Log.e(TAG, "Number format exception: ${e.message}")
-            Toast.makeText(this, "Format tanggal tidak valid", Toast.LENGTH_SHORT).show()
-            return false
-        }
-
-        Log.d(TAG, "Inputs validated successfully")
         return true
     }
 
     private fun processCheckout() {
         Log.d(TAG, "Processing checkout")
-        val currentUser = auth.currentUser
-        if (currentUser == null) {
+        val userId = auth.currentUser?.uid ?: run {
             Log.e(TAG, "User not logged in")
             Toast.makeText(this, "Anda belum login", Toast.LENGTH_SHORT).show()
             return
         }
 
-        val userId = currentUser.uid
-        Log.d(TAG, "Current user ID: $userId")
-        val bookingDate = Timestamp.now()
-
+        val orderId = "ORDER-${System.currentTimeMillis()}"
         val bookingData = hashMapOf(
             "coworkingId" to coworkingId,
             "userId" to userId,
             "coworkingName" to coworkingName,
-            "bookingDate" to bookingDate,
+            "bookingDate" to Timestamp.now(),
             "price" to coworkingPrice,
             "status" to "pending",
             "timestamp" to Timestamp.now()
         )
 
-        Log.d(TAG, "Booking data prepared: $bookingData")
-
-        Log.d(TAG, "Adding booking to Firestore")
+        Log.d(TAG, "Saving booking to Firestore")
         firestore.collection("bookings").add(bookingData)
-            .addOnSuccessListener { documentReference ->
-                val bookingId = documentReference.id
-                Log.d(TAG, "Booking added successfully with ID: $bookingId")
-
-                Log.d(TAG, "Preparing intent for PayConfirmActivity")
-                val intent = Intent(this, PayConfirmActivity::class.java).apply {
-                    putExtra("BOOKING_ID", bookingId)
-                    putExtra("COWORKING_NAME", coworkingName)
-                    putExtra("COWORKING_LOCATION", coworkingLocation)
-                    putExtra("COWORKING_PRICE", coworkingPrice)
-                }
-
-                Log.d(TAG, "Starting PayConfirmActivity")
-                startActivity(intent)
-                Log.d(TAG, "Finishing CheckoutActivity")
-                finish()
+            .addOnSuccessListener {
+                Log.d(TAG, "Booking saved, getting Midtrans Snap Token")
+                requestSnapToken(orderId, userId)
             }
             .addOnFailureListener { e ->
-                Log.e(TAG, "Failed to add booking: ${e.message}")
+                Log.e(TAG, "Failed to save booking: ${e.message}")
                 Toast.makeText(this, "Gagal booking: ${e.message}", Toast.LENGTH_SHORT).show()
             }
+    }
+
+    private fun requestSnapToken(orderId: String, userId: String) {
+        val url = "http://192.168.1.100:5000/midtrans/charge"
+        val jsonRequest = JSONObject()
+        jsonRequest.put("order_id", orderId)
+        jsonRequest.put("gross_amount", coworkingPrice)
+        jsonRequest.put("user_id", userId)
+
+        val requestQueue = Volley.newRequestQueue(this)
+        val request = JsonObjectRequest(Request.Method.POST, url, jsonRequest,
+            { response ->
+                val snapToken = response.getString("token")
+                Log.d(TAG, "Received Snap Token: $snapToken")
+                startMidtransPayment(snapToken)
+            },
+            { error ->
+                Log.e(TAG, "Failed to get Snap Token: ${error.message}")
+                Toast.makeText(this, "Gagal mendapatkan token pembayaran", Toast.LENGTH_SHORT).show()
+            })
+
+        requestQueue.add(request)
+    }
+
+    private fun startMidtransPayment(snapToken: String) {
+        UiKitApi.getInstance().startPaymentUiFlow(this, snapToken, object : UiKitApi.TransactionFinishedCallback {
+            override fun onTransactionFinished(result: TransactionResult) {
+                Log.d(TAG, "Payment Result: ${result.status}")
+                Toast.makeText(this@CheckoutActivity, "Pembayaran ${result.status}", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 }

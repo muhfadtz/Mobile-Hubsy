@@ -40,18 +40,32 @@ android {
     viewBinding {
         enable = true
     }
+
+    // ✅ Mencegah error "CheckDuplicatesRunnable"
+    packagingOptions {
+        exclude("META-INF/DEPENDENCIES")
+        exclude("META-INF/LICENSE")
+        exclude("META-INF/LICENSE.txt")
+        exclude("META-INF/NOTICE")
+        exclude("META-INF/NOTICE.txt")
+        exclude("META-INF/ASL2.0")
+        exclude("META-INF/gradle/incremental.annotation.processors")
+    }
 }
 
 dependencies {
+    // ✅ AndroidX
     implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.10.0")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
-    implementation("com.github.bumptech.glide:glide:4.15.1")
-    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
-    implementation("com.google.zxing:core:3.5.1")
-    annotationProcessor("com.github.bumptech.glide:compiler:4.15.1")
+    implementation("androidx.compose.material:material-icons-extended:1.5.0")
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.activity)
+    implementation(libs.androidx.constraintlayout)
 
-    // ✅ Firebase Dependencies
+    // ✅ Google Material Components
+    implementation("com.google.android.material:material:1.10.0")
+
+    // ✅ Firebase
     implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx")
@@ -60,13 +74,19 @@ dependencies {
     // ✅ Google Sign-In & Play Services
     implementation("com.google.android.gms:play-services-auth:20.7.0")
 
-    // ✅ AndroidX
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.activity)
-    implementation(libs.androidx.constraintlayout)
+    // ✅ Midtrans Payment Gateway
+    implementation("com.midtrans:uikit:1.3.2")
 
-    // ✅ UI Components
-    implementation("androidx.compose.material:material-icons-extended:1.5.0")
+    // ✅ Networking
+    implementation("com.android.volley:volley:1.2.1")
+
+    // ✅ Image Loading (Glide)
+    implementation("com.github.bumptech.glide:glide:4.15.1")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.15.1")
+
+    // ✅ QR Code Scanner
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+    implementation("com.google.zxing:core:3.5.1")
 
     // ✅ Testing
     testImplementation(libs.junit)
